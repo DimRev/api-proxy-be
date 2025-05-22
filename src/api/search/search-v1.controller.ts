@@ -3,9 +3,12 @@ import { AppConfigService } from 'src/shared/service/app-config.service';
 import { SearchResult } from './search-v1.interface';
 import { ApiError } from 'src/shared/utils/api-error';
 import { SearchV1Service } from './search-v1.service';
+import { CustomLogger } from 'src/shared/utils/custom-logger';
 
 @Controller('')
 export class SearchV1Controller {
+  private readonly logger = new CustomLogger(SearchV1Controller.name);
+
   constructor(
     private readonly apiConfigService: AppConfigService,
     private readonly searchV1Service: SearchV1Service,
@@ -16,6 +19,10 @@ export class SearchV1Controller {
     @Query('q') query: string,
   ): Promise<SearchResult[] | undefined> {
     if (!query) {
+      this.logger.error(
+        'Bad request: Query parameter is required',
+        'search-v1.controller.getSearch',
+      );
       throw ApiError.badRequest(
         'Query parameter is required',
         'query is required',
