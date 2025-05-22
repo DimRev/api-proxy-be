@@ -5,6 +5,7 @@ import { ApiModule } from './api/api.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppConfigService } from './shared/service/app-config.service';
+import { QueryHistoryService } from './shared/service/query-history.service';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { AppConfigService } from './shared/service/app-config.service';
     ApiModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppConfigService],
+  providers: [AppService, AppConfigService, QueryHistoryService],
 })
 export class AppModule {}

@@ -8,14 +8,23 @@ import {
 } from 'src/shared/utils/api-error';
 import { SearchResult } from './search-v1.interface';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
+import {
+  QueryHistoryEntry,
+  QueryHistoryService,
+} from 'src/shared/service/query-history.service';
 
 @Injectable()
 export class SearchV1Service {
   private readonly logger = new CustomLogger(SearchV1Service.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly queryHistoryService: QueryHistoryService,
+  ) {}
 
-  async getSearchResults(query: string): Promise<SearchResult[] | undefined> {
+  public async getSearchResults(
+    query: string,
+  ): Promise<SearchResult[] | undefined> {
     const API_URL = `http://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`;
 
     try {
@@ -33,6 +42,7 @@ export class SearchV1Service {
           }),
         ),
       );
+      await this.queryHistoryService.addQuery(query, SearchResults);
       return SearchResults;
     } catch (err: unknown) {
       let errMsg = 'unknown error';
@@ -45,6 +55,30 @@ export class SearchV1Service {
       this.logger.error(
         `Internal Error: Problem getting data from external service: ${errMsg}`,
         'search-v1.service.getSearchResults',
+      );
+
+      if (err instanceof ApiError) {
+        throw err;
+      }
+
+      catchAndFormatInternalError(err);
+    }
+  }
+
+  public async getHistory(): Promise<QueryHistoryEntry[] | undefined> {
+    try {
+      return await this.queryHistoryService.getHistory();
+    } catch (err) {
+      let errMsg = 'unknown error';
+      if (err instanceof Error) {
+        errMsg = err.message;
+      } else if (err instanceof ApiError) {
+        errMsg = err.responseMessage;
+      }
+
+      this.logger.error(
+        `Internal Error: Problem getting data from external service: ${errMsg}`,
+        'search-v1.service.getHistory',
       );
 
       if (err instanceof ApiError) {
