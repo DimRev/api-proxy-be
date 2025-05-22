@@ -17,5 +17,6 @@ import { SearchModule } from './search/search.module';
     ]),
     SearchModule,
   ],
+  providers: [],
 })
 export class ApiRoutesModule {}
