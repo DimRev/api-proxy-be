@@ -1,98 +1,125 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API Proxy - Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is an API proxy server built with NestJS. It provides a search API
+endpoint that integrates with DuckDuckGo and stores query history.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Search API:** An endpoint to search using DuckDuckGo.
+- **Query History:** Stores search queries and their results.
+- **Configuration:** Uses environment variables for configuration.
+- **Validation:** Implements Zod validation for request parameters and
+  environment variables.
+- **Logging:** Custom logger with colored output for different log levels.
+- **Error Handling:** Centralized error handling using `ApiError` class.
+- **Pagination:** Implements pagination for query history.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technologies Used
 
-## Project setup
+- [NestJS](https://nestjs.com/): A progressive Node.js framework for
+  building efficient, reliable and scalable server-side applications.
+- [Zod](https://github.com/colinhacks/zod): TypeScript-first schema
+  validation with static type inference.
+- [Axios](https://github.com/axios/axios): Promise based HTTP client for the
+  browser and node.js.
+- [DuckDuckGo API](https://duckduckgo.com/api): For search functionality.
+- [pnpm](https://pnpm.io/): Fast, disk space efficient package manager.
 
-```bash
-$ pnpm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js (>= 18)
+- pnpm
 
-```bash
-# development
-$ pnpm run start
+## Installation
 
-# watch mode
-$ pnpm run start:dev
+1.  Clone the repository:
 
-# production mode
-$ pnpm run start:prod
-```
+    ```bash
+    git clone <repository-url>
+    cd <repository-directory>
+    ```
 
-## Run tests
+2.  Install dependencies:
 
-```bash
-# unit tests
-$ pnpm run test
+    ```bash
+    pnpm install
+    ```
 
-# e2e tests
-$ pnpm run test:e2e
+3.  Create a `.env` file in the root directory with the following variables:
 
-# test coverage
-$ pnpm run test:cov
-```
+    ```env
+    PORT=3000
+    NODE_ENV=development
+    ```
 
-## Deployment
+    Adjust the values as needed. `PORT` must be a valid number between 1 and 65535. `NODE_ENV` must be one of `development`, `production`, or `test`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Running the Application
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm start
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This will start the server in development mode. You can also use the following
+commands:
 
-## Resources
+- `pnpm run start:dev`: Start the server in development mode with hot-reloading.
+- `pnpm run start:debug`: Start the server in debug mode.
+- `pnpm run start:prod`: Start the server in production mode.
 
-Check out a few resources that may come in handy when working with NestJS:
+## API Endpoints
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- `GET /api/v1/search?q={query}`: Search for a query using DuckDuckGo.
+- `POST /api/v1/search`: Search for a query using DuckDuckGo with the query
+  in the request body. The request body should be a JSON object with a
+  `query` field:
 
-## Support
+  ```json
+  {
+    "query": "your search query"
+  }
+  ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- `GET /api/v1/search/history?page={page}&pageSize={pageSize}`: Retrieve the
+  query history with pagination. `page` and `pageSize` are optional query
+  parameters. If not provided, default values of `page=1` and `pageSize=10`
+  are used.
 
-## Stay in touch
+## Query History
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The query history is stored in a file named `query-history.jsonl` located in
+the `data` directory. Each line in the file is a JSON object representing a
+search query and its results.
 
-## License
+## Example Usage
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Search API
+
+```bash
+curl "http://localhost:3000/api/v1/search?q=nestjs"
+```
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"query": "nestjs"}' http://localhost:3000/api/v1/search
+```
+
+### Query History API
+
+```bash
+curl "http://localhost:3000/api/v1/search/history?page=2&pageSize=5"
+```
+
+## Error Handling
+
+The API uses the `ApiError` class for centralized error handling. It returns
+JSON responses with a status code and a message. Possible errors include:
+
+- **400 Bad Request:** Invalid request parameters.
+- **404 Not Found:** Resource not found.
+- **500 Internal Server Error:** An unexpected error occurred on the server.
+
+## Logging
+
+The application uses a custom logger (`CustomLogger`) that extends
+`ConsoleLogger` from NestJS. It provides colored output for different log
+levels and includes timestamps, context, and process ID.
