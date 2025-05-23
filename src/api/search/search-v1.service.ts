@@ -3,15 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { DuckDuckGoResponse } from 'src/shared/interface/duckduckgo-response';
 import {
+  PaginatedQueryHistory,
+  QueryHistoryService,
+} from 'src/shared/service/query-history.service';
+import {
   ApiError,
   catchAndFormatInternalError,
 } from 'src/shared/utils/api-error';
-import { SearchResult } from './search-v1.interface';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
-import {
-  QueryHistoryEntry,
-  QueryHistoryService,
-} from 'src/shared/service/query-history.service';
+import { SearchResult } from './search-v1.interface';
 
 @Injectable()
 export class SearchV1Service {
@@ -65,9 +65,12 @@ export class SearchV1Service {
     }
   }
 
-  public async getHistory(): Promise<QueryHistoryEntry[] | undefined> {
+  public async getHistory(
+    page: number,
+    pageSize: number,
+  ): Promise<PaginatedQueryHistory | undefined> {
     try {
-      return await this.queryHistoryService.getHistory();
+      return await this.queryHistoryService.getHistory(page, pageSize);
     } catch (err) {
       let errMsg = 'unknown error';
       if (err instanceof Error) {
