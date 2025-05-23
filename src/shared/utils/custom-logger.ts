@@ -14,6 +14,7 @@ export class CustomLogger extends ConsoleLogger {
     gray: '\x1b[90m',
     white: '\x1b[37m',
     purple: '\x1b[35m',
+    nest_red: '\x1b[38;5;203m',
   };
 
   setContext(context: string) {
@@ -36,7 +37,7 @@ export class CustomLogger extends ConsoleLogger {
       : '';
     const pidMessage = `${this.colors.gray}[PID ${process.pid}]${this.colors.reset}`;
 
-    const formattedMessage = `${this.colors.gray}${timestamp}${this.colors.reset} | ${coloredLevel}${coloredFunctionCalled}${pidMessage}: ${coloredContext} ${message}`;
+    const formattedMessage = `${this.colors.gray}${timestamp}${this.colors.reset} | ${coloredLevel}${coloredFunctionCalled}${pidMessage}: ${coloredContext} ${this.colors.nest_red}${message}${this.colors.reset}`;
 
     return formattedMessage;
   }
