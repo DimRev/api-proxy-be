@@ -4,7 +4,10 @@ import { ApiError } from 'src/shared/utils/api-error';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
 import { z } from 'zod';
 import { SearchV1Service } from './search-v1.service';
-import { SearchResult, PaginatedQueryHistory } from '@repo/interfaces';
+import {
+  SearchResultResponse,
+  PaginatedQueryHistoryResponse,
+} from '@repo/interfaces';
 
 @Controller('')
 export class SearchV1Controller {
@@ -18,7 +21,7 @@ export class SearchV1Controller {
   @Get()
   async getSearch(
     @Query('q') query: string,
-  ): Promise<SearchResult[] | undefined> {
+  ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
       if (!query || query.length < 1) {
@@ -49,7 +52,9 @@ export class SearchV1Controller {
   }
 
   @Post()
-  async postSearch(@Body() bodyDto: any): Promise<SearchResult[] | undefined> {
+  async postSearch(
+    @Body() bodyDto: any,
+  ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
       const bodySchema = z.object({
@@ -92,7 +97,7 @@ export class SearchV1Controller {
   async getHistory(
     @Query('page') pageParam: string,
     @Query('pageSize') pageSizeParam: string,
-  ): Promise<PaginatedQueryHistory | undefined> {
+  ): Promise<PaginatedQueryHistoryResponse | undefined> {
     const startTS = Date.now();
     try {
       const queryParamsSchema = z.object({

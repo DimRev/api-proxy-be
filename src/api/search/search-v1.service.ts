@@ -8,9 +8,9 @@ import {
 } from 'src/shared/utils/api-error';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
 import {
-  SearchResult,
+  SearchResultResponse,
   DuckDuckGoResponse,
-  PaginatedQueryHistory,
+  PaginatedQueryHistoryResponse,
 } from '@repo/interfaces';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class SearchV1Service {
 
   public async getSearchResults(
     query: string,
-  ): Promise<SearchResult[] | undefined> {
+  ): Promise<SearchResultResponse[] | undefined> {
     const API_URL = `http://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`;
 
     try {
@@ -68,7 +68,7 @@ export class SearchV1Service {
   public async getHistory(
     page: number,
     pageSize: number,
-  ): Promise<PaginatedQueryHistory | undefined> {
+  ): Promise<PaginatedQueryHistoryResponse | undefined> {
     try {
       return await this.queryHistoryService.getHistory(page, pageSize);
     } catch (err) {
@@ -94,20 +94,23 @@ export class SearchV1Service {
 
   private __mapDuckDuckGoResponse(
     response: DuckDuckGoResponse,
-  ): SearchResult[] {
-    return response.RelatedTopics.reduce<SearchResult[]>((acc, topic) => {
-      if (
-        typeof topic.Text === 'string' &&
-        topic.Text.length > 0 &&
-        typeof topic.FirstURL === 'string' &&
-        topic.FirstURL.length > 0
-      ) {
-        acc.push({
-          title: topic.Text,
-          url: topic.FirstURL,
-        });
-      }
-      return acc;
-    }, []);
+  ): SearchResultResponse[] {
+    return response.RelatedTopics.reduce<SearchResultResponse[]>(
+      (acc, topic) => {
+        if (
+          typeof topic.Text === 'string' &&
+          topic.Text.length > 0 &&
+          typeof topic.FirstURL === 'string' &&
+          topic.FirstURL.length > 0
+        ) {
+          acc.push({
+            title: topic.Text,
+            url: topic.FirstURL,
+          });
+        }
+        return acc;
+      },
+      [],
+    );
   }
 }

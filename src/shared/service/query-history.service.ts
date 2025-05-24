@@ -5,9 +5,9 @@ import { promises as fsp } from 'fs';
 import { Injectable } from '@nestjs/common';
 import { CustomLogger } from '../utils/custom-logger';
 import {
-  PaginatedQueryHistory,
+  PaginatedQueryHistoryResponse,
   QueryHistoryEntry,
-  SearchResult,
+  SearchResultResponse,
 } from '@repo/interfaces';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class QueryHistoryService {
   async getHistory(
     page: number = this.DEFAULT_PAGE,
     pageSize: number = this.DEFAULT_PAGE_SIZE,
-  ): Promise<PaginatedQueryHistory> {
+  ): Promise<PaginatedQueryHistoryResponse> {
     page = Math.max(1, page);
     pageSize = Math.max(1, pageSize);
 
@@ -173,7 +173,7 @@ export class QueryHistoryService {
     }
   }
 
-  async addQuery(query: string, data: SearchResult[]): Promise<void> {
+  async addQuery(query: string, data: SearchResultResponse[]): Promise<void> {
     const newEntry: QueryHistoryEntry = {
       query: query,
       timestamp: new Date().toISOString(),
