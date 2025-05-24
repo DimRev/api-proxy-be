@@ -1,17 +1,17 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { catchError, firstValueFrom, map } from 'rxjs';
-import { DuckDuckGoResponse } from 'src/shared/interface/duckduckgo-response';
-import {
-  PaginatedQueryHistory,
-  QueryHistoryService,
-} from 'src/shared/service/query-history.service';
+import { QueryHistoryService } from 'src/shared/service/query-history.service';
 import {
   ApiError,
   catchAndFormatInternalError,
 } from 'src/shared/utils/api-error';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
-import { SearchResult } from './search-v1.interface';
+import {
+  SearchResult,
+  DuckDuckGoResponse,
+  PaginatedQueryHistory,
+} from '@repo/interfaces';
 
 @Injectable()
 export class SearchV1Service {

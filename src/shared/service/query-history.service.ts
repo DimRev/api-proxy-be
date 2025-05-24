@@ -4,21 +4,11 @@ import * as readline from 'readline';
 import { promises as fsp } from 'fs';
 import { Injectable } from '@nestjs/common';
 import { CustomLogger } from '../utils/custom-logger';
-import { SearchResult } from 'src/api/search/search-v1.interface';
-
-export interface QueryHistoryEntry {
-  query: string;
-  timestamp: string;
-  data: SearchResult[];
-}
-
-export interface PaginatedQueryHistory {
-  entries: QueryHistoryEntry[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-}
+import {
+  PaginatedQueryHistory,
+  QueryHistoryEntry,
+  SearchResult,
+} from '@repo/interfaces';
 
 @Injectable()
 export class QueryHistoryService {

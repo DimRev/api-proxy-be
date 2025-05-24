@@ -1,11 +1,10 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AppConfigService } from 'src/shared/service/app-config.service';
-import { PaginatedQueryHistory } from 'src/shared/service/query-history.service';
 import { ApiError } from 'src/shared/utils/api-error';
 import { CustomLogger } from 'src/shared/utils/custom-logger';
 import { z } from 'zod';
-import { SearchResult } from './search-v1.interface';
 import { SearchV1Service } from './search-v1.service';
+import { SearchResult, PaginatedQueryHistory } from '@repo/interfaces';
 
 @Controller('')
 export class SearchV1Controller {
