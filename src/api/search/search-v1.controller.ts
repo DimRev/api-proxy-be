@@ -7,6 +7,9 @@ import { SearchV1Service } from './search-v1.service';
 import {
   SearchResultResponse,
   PaginatedQueryHistoryResponse,
+  GetSearchRequestParams,
+  PostSearchRequestBody,
+  GetHistoryRequestParams,
 } from '@repo/interfaces';
 
 @Controller('')
@@ -20,11 +23,11 @@ export class SearchV1Controller {
 
   @Get()
   async getSearch(
-    @Query('q') query: string,
+    @Query() { q }: GetSearchRequestParams,
   ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
-      if (!query || query.length < 1) {
+      if (!q || q.length < 1) {
         this.logger.error(
           'Bad request: Query parameter is required',
           'search-v1.controller.getSearch',
@@ -35,7 +38,7 @@ export class SearchV1Controller {
         );
       }
 
-      const resp = await this.searchV1Service.getSearchResults(query);
+      const resp = await this.searchV1Service.getSearchResults(q);
       const endTS = Date.now();
       this.logger.log(
         `OK took: ${endTS - startTS}ms`,
@@ -53,7 +56,7 @@ export class SearchV1Controller {
 
   @Post()
   async postSearch(
-    @Body() bodyDto: any,
+    @Body() bodyDto: PostSearchRequestBody,
   ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
@@ -95,8 +98,8 @@ export class SearchV1Controller {
 
   @Get('history')
   async getHistory(
-    @Query('page') pageParam: string,
-    @Query('pageSize') pageSizeParam: string,
+    @Query()
+    { page: pageParam, pageSize: pageSizeParam }: GetHistoryRequestParams,
   ): Promise<PaginatedQueryHistoryResponse | undefined> {
     const startTS = Date.now();
     try {
