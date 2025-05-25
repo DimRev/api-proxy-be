@@ -1,5 +1,6 @@
 import { HttpException } from '@nestjs/common';
 import { AxiosError } from 'axios';
+import { CustomLogger } from './custom-logger';
 
 export class ApiError extends HttpException {
   constructor(
@@ -16,32 +17,63 @@ export class ApiError extends HttpException {
     respMsg: string,
     logMsg: string,
     error?: unknown,
+    functionCalled?: string,
+    logger?: CustomLogger,
   ): ApiError {
+    if (logger) {
+      logger.error(`Bad request: ${logMsg}`, functionCalled);
+    }
     return new ApiError(400, respMsg, logMsg, error);
   }
 
-  static notFound(respMsg: string, logMsg: string, error?: unknown): ApiError {
+  static notFound(
+    respMsg: string,
+    logMsg: string,
+    error?: unknown,
+    functionCalled?: string,
+    logger?: CustomLogger,
+  ): ApiError {
+    if (logger) {
+      logger.error(`Not found: ${logMsg}`, functionCalled);
+    }
     return new ApiError(404, respMsg, logMsg, error);
   }
 
-  static internal(respMsg: string, logMsg: string, error?: unknown): ApiError {
+  static internal(
+    respMsg: string,
+    logMsg: string,
+    error?: unknown,
+    functionCalled?: string,
+    logger?: CustomLogger,
+  ): ApiError {
+    if (logger) {
+      logger.error(`Internal: ${logMsg}`, functionCalled);
+    }
     return new ApiError(500, respMsg, logMsg, error);
   }
 }
 
-export function catchAndFormatInternalError(error: unknown): ApiError {
+export function catchAndFormatInternalError(
+  error: unknown,
+  functionCalled?: string,
+  logger?: CustomLogger,
+): ApiError {
   if (error instanceof ApiError) {
     throw error;
   }
   if (error instanceof AxiosError) {
-    const errorMessage =
-      (typeof error.response?.data === 'object' &&
+    const statusCode = error.response?.status;
+
+    const responseMessage =
+      typeof error.response?.data === 'object' &&
       error.response?.data !== null &&
       'message' in error.response.data &&
       typeof (error.response.data as { message?: unknown }).message === 'string'
         ? (error.response.data as { message?: string }).message
-        : undefined) || error.message;
-    const statusCode = error.response?.status;
+        : undefined;
+
+    const errorMessage = responseMessage ?? error.message;
+
     const errorCode = error.code;
 
     let logMessage = `Axios error`;
@@ -57,14 +89,28 @@ export function catchAndFormatInternalError(error: unknown): ApiError {
     logMessage += `: ${errorMessage}`;
 
     throw ApiError.internal(
-      'Problem getting data from external service',
+      'Internal Server Error',
       logMessage,
       error,
+      functionCalled,
+      logger,
     );
   }
 
   if (error instanceof Error) {
-    throw ApiError.internal('An unknown error occurred', error.message, error);
+    throw ApiError.internal(
+      'An unknown error occurred',
+      error.message,
+      error,
+      functionCalled,
+      logger,
+    );
   }
-  throw ApiError.internal('An unknown error occurred', 'unknown error', error);
+  throw ApiError.internal(
+    'An unknown error occurred',
+    'unknown error',
+    error,
+    functionCalled,
+    logger,
+  );
 }

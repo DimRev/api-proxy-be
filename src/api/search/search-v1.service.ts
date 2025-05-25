@@ -34,34 +34,26 @@ export class SearchV1Service {
             this.__mapDuckDuckGoResponse(res.data as DuckDuckGoResponse),
           ),
           catchError((err: unknown) => {
-            this.logger.error(
-              'Internal Error: Problem getting data from external service',
+            throw catchAndFormatInternalError(
+              err,
               'search-v1.service.getSearchResults',
+              this.logger,
             );
-            throw catchAndFormatInternalError(err);
           }),
         ),
       );
       await this.queryHistoryService.addQuery(query, SearchResults);
       return SearchResults;
     } catch (err: unknown) {
-      let errMsg = 'unknown error';
-      if (err instanceof Error) {
-        errMsg = err.message;
-      } else if (err instanceof ApiError) {
-        errMsg = err.responseMessage;
-      }
-
-      this.logger.error(
-        `Internal Error: Problem getting data from external service: ${errMsg}`,
-        'search-v1.service.getSearchResults',
-      );
-
       if (err instanceof ApiError) {
         throw err;
       }
 
-      catchAndFormatInternalError(err);
+      throw catchAndFormatInternalError(
+        err,
+        'search-v1.service.getSearchResults',
+        this.logger,
+      );
     }
   }
 
@@ -72,23 +64,15 @@ export class SearchV1Service {
     try {
       return await this.queryHistoryService.getHistory(page, pageSize);
     } catch (err) {
-      let errMsg = 'unknown error';
-      if (err instanceof Error) {
-        errMsg = err.message;
-      } else if (err instanceof ApiError) {
-        errMsg = err.responseMessage;
-      }
-
-      this.logger.error(
-        `Internal Error: Problem getting data from external service: ${errMsg}`,
-        'search-v1.service.getHistory',
-      );
-
       if (err instanceof ApiError) {
         throw err;
       }
 
-      catchAndFormatInternalError(err);
+      throw catchAndFormatInternalError(
+        err,
+        'search-v1.service.getHistory',
+        this.logger,
+      );
     }
   }
 

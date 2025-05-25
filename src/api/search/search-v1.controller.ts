@@ -23,22 +23,36 @@ export class SearchV1Controller {
 
   @Get()
   async getSearch(
-    @Query() { q }: GetSearchRequestParams,
+    @Query() unparsedParams: GetSearchRequestParams,
   ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
-      if (!q || q.length < 1) {
-        this.logger.error(
-          'Bad request: Query parameter is required',
-          'search-v1.controller.getSearch',
-        );
+      const paramsSchema = z.object({
+        q: z.string().min(1, 'Search query is required'),
+      });
+
+      const parsedParams = paramsSchema.safeParse(unparsedParams);
+
+      if (!parsedParams.success) {
+        const errMsg = parsedParams.error.errors
+          .map((error) => {
+            const path = error.path.join('.');
+            return `[${path}] ${error.message}`;
+          })
+          .join(', ');
+
         throw ApiError.badRequest(
-          'Query parameter is required',
-          'query is required',
+          'Bad request: Malformed params',
+          errMsg,
+          undefined,
+          'search-v1.controller.getSearch',
+          this.logger,
         );
       }
 
-      const resp = await this.searchV1Service.getSearchResults(q);
+      const resp = await this.searchV1Service.getSearchResults(
+        parsedParams.data.q,
+      );
       const endTS = Date.now();
       this.logger.log(
         `OK took: ${endTS - startTS}ms`,
@@ -56,7 +70,7 @@ export class SearchV1Controller {
 
   @Post()
   async postSearch(
-    @Body() bodyDto: PostSearchRequestBody,
+    @Body() unparsedBody: PostSearchRequestBody,
   ): Promise<SearchResultResponse[] | undefined> {
     const startTS = Date.now();
     try {
@@ -64,17 +78,23 @@ export class SearchV1Controller {
         query: z.string().min(1, 'Query parameter is required'),
       });
 
-      const parsedBody = bodySchema.safeParse(bodyDto);
+      const parsedBody = bodySchema.safeParse(unparsedBody);
 
       if (!parsedBody.success) {
-        const errorMessage = parsedBody.error.errors
-          .map((err) => err.message)
+        const errMsg = parsedBody.error.errors
+          .map((error) => {
+            const path = error.path.join('.');
+            return `[${path}] ${error.message}`;
+          })
           .join(', ');
-        this.logger.error(
-          `Bad request: ${errorMessage}`,
+
+        throw ApiError.badRequest(
+          'Bad request: Malformed body',
+          errMsg,
+          undefined,
           'search-v1.controller.postSearch',
+          this.logger,
         );
-        throw ApiError.badRequest('Invalid request body', errorMessage);
       }
 
       const { query } = parsedBody.data;
@@ -99,11 +119,11 @@ export class SearchV1Controller {
   @Get('history')
   async getHistory(
     @Query()
-    { page: pageParam, pageSize: pageSizeParam }: GetHistoryRequestParams,
+    unparsedParams: GetHistoryRequestParams,
   ): Promise<PaginatedQueryHistoryResponse | undefined> {
     const startTS = Date.now();
     try {
-      const queryParamsSchema = z.object({
+      const paramsSchema = z.object({
         page: z
           .string()
           .transform((val) => parseInt(val, 10))
@@ -124,20 +144,23 @@ export class SearchV1Controller {
           }),
       });
 
-      const parsedQueryParams = queryParamsSchema.safeParse({
-        page: pageParam,
-        pageSize: pageSizeParam,
-      });
+      const parsedQueryParams = paramsSchema.safeParse(unparsedParams);
 
       if (!parsedQueryParams.success) {
-        const errorMessage = parsedQueryParams.error.errors
-          .map((err) => err.message)
+        const errMsg = parsedQueryParams.error.errors
+          .map((error) => {
+            const path = error.path.join('.');
+            return `[${path}] ${error.message}`;
+          })
           .join(', ');
-        this.logger.error(
-          `Bad request: ${errorMessage}`,
+
+        throw ApiError.badRequest(
+          'Bad request: Malformed params',
+          errMsg,
+          undefined,
           'search-v1.controller.getHistory',
+          this.logger,
         );
-        throw ApiError.badRequest('Invalid request body', errorMessage);
       }
 
       const { page, pageSize } = parsedQueryParams.data;

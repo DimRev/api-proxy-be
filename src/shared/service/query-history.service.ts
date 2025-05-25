@@ -12,7 +12,7 @@ import {
 
 @Injectable()
 export class QueryHistoryService {
-  private readonly FILE_PATH = path.join(
+  private readonly QUERY_HISTORY_FILE_PATH = path.join(
     process.cwd(),
     'data',
     'query-history.jsonl',
@@ -23,25 +23,7 @@ export class QueryHistoryService {
   private readonly DEFAULT_PAGE = 1;
 
   constructor() {
-    void this.ensureDirectoryExists();
-  }
-
-  private async ensureDirectoryExists(): Promise<void> {
-    const dirName = path.dirname(this.FILE_PATH);
-    try {
-      await fsp.mkdir(dirName, { recursive: true });
-      this.logger.log(`Directory ${dirName} created.`);
-    } catch (error) {
-      let errMsg = 'unknown error';
-      if (error instanceof Error) {
-        errMsg = error.message;
-      }
-      this.logger.error(
-        `Error creating directory ${dirName}: ${errMsg}`,
-        undefined,
-        QueryHistoryService.name,
-      );
-    }
+    void this.__ensureDirectoryExists();
   }
 
   async getHistory(
@@ -52,7 +34,7 @@ export class QueryHistoryService {
     pageSize = Math.max(1, pageSize);
 
     try {
-      const totalCount = await this.getTotalHistoryCount();
+      const totalCount = await this.__getTotalHistoryCount();
       const totalPages = Math.ceil(totalCount / pageSize);
 
       if (page > totalPages && totalPages > 0) {
@@ -61,7 +43,7 @@ export class QueryHistoryService {
 
       const skip = (page - 1) * pageSize;
 
-      const allEntries = await this.readAllHistoryEntries();
+      const allEntries = await this.__readAllHistoryEntries();
 
       allEntries.sort(
         (a, b) =>
@@ -97,9 +79,9 @@ export class QueryHistoryService {
     }
   }
 
-  async getTotalHistoryCount(): Promise<number> {
+  private async __getTotalHistoryCount(): Promise<number> {
     try {
-      const entries = await this.readAllHistoryEntries();
+      const entries = await this.__readAllHistoryEntries();
       return entries.length;
     } catch (error) {
       let errMsg = 'unknown error';
@@ -119,21 +101,53 @@ export class QueryHistoryService {
     pageSize: number = this.DEFAULT_PAGE_SIZE,
   ): Promise<number> {
     pageSize = Math.max(1, pageSize);
-    const totalCount = await this.getTotalHistoryCount();
+    const totalCount = await this.__getTotalHistoryCount();
     return Math.ceil(totalCount / pageSize);
   }
 
-  private async readAllHistoryEntries(): Promise<QueryHistoryEntry[]> {
+  async addQuery(query: string, data: SearchResultResponse[]): Promise<void> {
+    const newEntry: QueryHistoryEntry = {
+      query: query,
+      timestamp: new Date().toISOString(),
+      data: data,
+    };
+    const line = JSON.stringify(newEntry) + '\n';
+
+    try {
+      await fsp.appendFile(this.QUERY_HISTORY_FILE_PATH, line, 'utf-8');
+      this.logger.log(
+        `Query "${query}" added to history with ${data.length} results.`,
+        QueryHistoryService.name,
+      );
+    } catch (err) {
+      let errMsg = 'unknown error';
+      if (err instanceof Error) {
+        errMsg = err.message;
+      }
+
+      this.logger.error(
+        `Error appending query "${query}" to history file: ${errMsg}`,
+        undefined,
+        QueryHistoryService.name,
+      );
+      throw new Error(`Failed to add query to history: ${query}`);
+    }
+  }
+
+  private async __readAllHistoryEntries(): Promise<QueryHistoryEntry[]> {
     const entries: QueryHistoryEntry[] = [];
 
     try {
       try {
-        await fsp.access(this.FILE_PATH, fs.constants.F_OK);
+        await fsp.access(this.QUERY_HISTORY_FILE_PATH, fs.constants.F_OK);
       } catch {
         return [];
       }
 
-      const fileStream = fs.createReadStream(this.FILE_PATH, 'utf-8');
+      const fileStream = fs.createReadStream(
+        this.QUERY_HISTORY_FILE_PATH,
+        'utf-8',
+      );
       const rl = readline.createInterface({
         input: fileStream,
         crlfDelay: Infinity,
@@ -173,32 +187,21 @@ export class QueryHistoryService {
     }
   }
 
-  async addQuery(query: string, data: SearchResultResponse[]): Promise<void> {
-    const newEntry: QueryHistoryEntry = {
-      query: query,
-      timestamp: new Date().toISOString(),
-      data: data,
-    };
-    const line = JSON.stringify(newEntry) + '\n';
-
+  private async __ensureDirectoryExists(): Promise<void> {
+    const dirName = path.dirname(this.QUERY_HISTORY_FILE_PATH);
     try {
-      await fsp.appendFile(this.FILE_PATH, line, 'utf-8');
-      this.logger.log(
-        `Query "${query}" added to history with ${data.length} results.`,
-        QueryHistoryService.name,
-      );
-    } catch (err) {
+      await fsp.mkdir(dirName, { recursive: true });
+      this.logger.log(`Directory ${dirName} created.`);
+    } catch (error) {
       let errMsg = 'unknown error';
-      if (err instanceof Error) {
-        errMsg = err.message;
+      if (error instanceof Error) {
+        errMsg = error.message;
       }
-
       this.logger.error(
-        `Error appending query "${query}" to history file: ${errMsg}`,
+        `Error creating directory ${dirName}: ${errMsg}`,
         undefined,
         QueryHistoryService.name,
       );
-      throw new Error(`Failed to add query to history: ${query}`);
     }
   }
 }
