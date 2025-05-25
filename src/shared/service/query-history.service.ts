@@ -34,7 +34,9 @@ export class QueryHistoryService {
     pageSize = Math.max(1, pageSize);
 
     try {
-      const totalCount = await this.__getTotalHistoryCount();
+      const allEntries = await this.__readAllHistoryEntries();
+
+      const totalCount = allEntries.length;
       const totalPages = Math.ceil(totalCount / pageSize);
 
       if (page > totalPages && totalPages > 0) {
@@ -42,8 +44,6 @@ export class QueryHistoryService {
       }
 
       const skip = (page - 1) * pageSize;
-
-      const allEntries = await this.__readAllHistoryEntries();
 
       allEntries.sort(
         (a, b) =>
